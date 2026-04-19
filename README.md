@@ -1,3 +1,11 @@
+
+## Fork Information
+
+This repository was forked from [acados/acados](https://github.com/acados/acados) on April 19, 2026.
+
+- The following is the original contents of `README.md`.
+---
+
 <!-- # acados -->
 
 ![](docs/_static/acados_logo.png)
