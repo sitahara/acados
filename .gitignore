@@ -144,3 +144,4 @@ blasfeoConfig*
 
 # Wheel files
 *.whl
+wheel/
