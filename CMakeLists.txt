@@ -65,7 +65,7 @@ else()
     set(BLASFEO_TARGET "X64_AUTOMATIC" CACHE STRING "BLASFEO Target architecture")
 endif()
 set(LA "HIGH_PERFORMANCE" CACHE STRING "Linear algebra optimization level")
-set(HPIPM_TARGET "AVX" CACHE STRING "HPIPM Target architecture")
+set(HPIPM_TARGET "GENERIC" CACHE STRING "HPIPM Target architecture")
 
 if (NOT DEFINED BUILD_SHARED_LIBS)
     if (CMAKE_SYSTEM_NAME MATCHES "Windows")
