@@ -101,7 +101,9 @@ c_generated_code
 *.swp
 build/
 include/
+include
 lib/
+lib
 bin/
 local/
 share/
@@ -136,3 +138,9 @@ qp_out*.txt
 figures
 examples/**/*.pdf
 examples/**/*.png
+
+# BLASFEO stuff
+blasfeoConfig*
+
+# Wheel files
+*.whl

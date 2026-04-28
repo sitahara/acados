@@ -65,7 +65,7 @@ else()
     set(BLASFEO_TARGET "X64_AUTOMATIC" CACHE STRING "BLASFEO Target architecture")
 endif()
 set(LA "HIGH_PERFORMANCE" CACHE STRING "Linear algebra optimization level")
-set(HPIPM_TARGET "GENERIC" CACHE STRING "HPIPM Target architecture")
+set(HPIPM_TARGET "AVX" CACHE STRING "HPIPM Target architecture")
 
 if (NOT DEFINED BUILD_SHARED_LIBS)
     if (CMAKE_SYSTEM_NAME MATCHES "Windows")
@@ -85,7 +85,7 @@ option(ACADOS_UNIT_TESTS "Compile Unit tests" OFF)
 option(ACADOS_EXAMPLES "Compile Examples" OFF)
 option(ACADOS_LINT "Compile Lint" OFF)
 # External libs
-option(ACADOS_WITH_QPOASES "qpOASES solver" OFF)
+option(ACADOS_WITH_QPOASES "qpOASES solver" ON)
 option(ACADOS_WITH_DAQP "DAQP solver" OFF)
 option(ACADOS_WITH_HPMPC "HPMPC solver" OFF)
 option(ACADOS_WITH_QORE "QORE solver" OFF)
@@ -101,6 +101,9 @@ mark_as_advanced(ACADOS_WITH_SYSTEM_BLASFEO)
 if(ACADOS_WITH_SYSTEM_BLASFEO)
     message(WARNING "The ACADOS_WITH_SYSTEM_BLASFEO option is enabled. ACADOS is tested by its developers only with ACADOS_WITH_SYSTEM_BLASFEO=OFF, when using an external blasfeo may sure that everything works as expected.")
 endif()
+
+# Find ament_cmake so that environment hooks can be used
+find_package(ament_cmake REQUIRED)
 
 # Set custom path
 set(EXTERNAL_SRC_DIR ${PROJECT_SOURCE_DIR}/external)
@@ -367,7 +370,6 @@ endif()
 message(STATUS "Git commit is ${GIT_COMMIT}")
 file(WRITE lib/git_commit_hash "${GIT_COMMIT}")
 
-
 file(WRITE lib/link_libs.json {\n)
 file(APPEND lib/link_libs.json \t\"openmp\":\ \"${LINK_FLAG_OPENMP}\",\n)
 file(APPEND lib/link_libs.json \t\"qpoases\":\ \"${LINK_FLAG_QPOASES}\",\n)
@@ -379,3 +381,24 @@ file(APPEND lib/link_libs.json \t\"hpmpc\":\ \"${LINK_FLAG_HPMPC}\",\n)
 # file(APPEND lib/link_libs.json \t\"qore\":\ \"${LINK_FLAG_QORE}\",\n)
 file(APPEND lib/link_libs.json \t\"ooqp\":\ \"${LINK_FLAG_OOQP}\"\n) # no final comma!
 file(APPEND lib/link_libs.json })
+
+# Build wheel to reduce install time
+add_custom_target(build_acados_wheel ALL
+    COMMAND python3 -m pip wheel --editable ${PROJECT_SOURCE_DIR}/interfaces/acados_template --wheel-dir ${PROJECT_SOURCE_DIR}/wheel
+    COMMENT "Building wheel"
+)
+
+# ament environment hooks to set ACADOS_PATH and LD_LIBRARY_PATH
+ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/export_acados_path.sh.in")
+
+# This is necessary to make the hook work with colcon
+ament_package()
+
+# Link ${CMAKE_INSTALL_PREFIX}/include libraries in ${CMAKE_INSTALL_PREFIX}/lib to ${PROJECT_SOURCE_DIR} to mimic standard installation behavior 
+file(CREATE_LINK ${CMAKE_INSTALL_PREFIX}/include ${PROJECT_SOURCE_DIR}/include SYMBOLIC)
+
+file(CREATE_LINK ${CMAKE_INSTALL_PREFIX}/lib/libacados.so ${PROJECT_SOURCE_DIR}/lib/libacados.so SYMBOLIC)
+file(CREATE_LINK ${CMAKE_INSTALL_PREFIX}/lib/libblasfeo.so ${PROJECT_SOURCE_DIR}/lib/libblasfeo.so SYMBOLIC)
+file(CREATE_LINK ${CMAKE_INSTALL_PREFIX}/lib/libhpipm.so ${PROJECT_SOURCE_DIR}/lib/libhpipm.so SYMBOLIC)
+file(CREATE_LINK ${CMAKE_INSTALL_PREFIX}/lib/libqpOASES_e.so ${PROJECT_SOURCE_DIR}/lib/libqpOASES_e.so SYMBOLIC)
+

@@ -42,21 +42,25 @@ from sysconfig import get_paths
 
 class AcadosCodeGenOpts:
     def __init__(self) -> None:
-        acados_path = get_acados_path()
+        self.__acados_path = get_acados_path()
 
-        self.__acados_include_path = os.path.join(acados_path, 'include').replace(os.sep, '/')
+        self.__acados_include_path = os.path.join(self.__acados_path, 'include').replace(os.sep, '/')
         self.__acados_link_libs: Dict[str, str] = {}
 
         self.__shared_lib_ext = get_shared_lib_ext()
         self.__os = get_os_str()
         self.__cython_include_dirs = [np.get_include(), get_paths()['include']]
 
-        self.__acados_lib_path = os.path.join(acados_path, 'lib')
+        self.__acados_lib_path = os.path.join(self.__acados_path, 'lib')
         self.__json_file: str = ''
         self.__code_export_directory = 'c_generated_code'
         self.__acados_version = None
 
     # read-only properties
+    @property
+    def acados_path(self) -> str:
+        return self.__acados_path
+
     @property
     def acados_include_path(self) -> str:
         return self.__acados_include_path

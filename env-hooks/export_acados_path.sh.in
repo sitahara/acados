@@ -1,0 +1,4 @@
+export ACADOS_SOURCE_DIR="@CMAKE_CURRENT_SOURCE_DIR@"
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"@PROJECT_SOURCE_DIR@/lib"
+export PATH=$PATH:"/home/$(whoami)/.local/bin"
+python3 -m pip install --no-index --find-links=@CMAKE_CURRENT_SOURCE_DIR@/wheel acados_template 1> /dev/null
